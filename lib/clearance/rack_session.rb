@@ -8,7 +8,8 @@ module Clearance
       session = Clearance::Session.new(env)
       env[:clearance] = session
       response = @app.call(env)
-      session.add_cookie_to_headers response[1]
+      domain = Rack::Request.new(env).host()
+      session.add_cookie_to_headers response[1], domain
       response
     end
   end

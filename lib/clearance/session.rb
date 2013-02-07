@@ -6,13 +6,14 @@ module Clearance
       @env = env
     end
 
-    def add_cookie_to_headers(headers)
+    def add_cookie_to_headers(headers, domain)
       if signed_in?
         Rack::Utils.set_cookie_header!(
           headers, REMEMBER_TOKEN_COOKIE,
           :value => current_user.remember_token,
           :expires => Clearance.configuration.cookie_expiration.call,
-          :path => '/'
+          :path => '/',
+          :domain => ".#{clean(domain)}"
         )
       end
     end
@@ -45,6 +46,10 @@ module Clearance
     end
 
     private
+
+    def clean(domain)
+      domain.gsub(/(?:http[s]*\:\/\/)*(.*?)\.(?=[^\/]*\..{2,5})/, '')
+    end
 
     def cookies
       @cookies ||= @env['action_dispatch.cookies'] || Rack::Request.new(@env).cookies
